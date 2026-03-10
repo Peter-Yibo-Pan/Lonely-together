@@ -1,0 +1,26 @@
+---
+title: "Lonely Together Wrangling 1"
+author: "Peter Yibo Pan"
+date: "2026-03-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(glue)
+library(knitr)
+theme_set(theme_minimal())
+```
+
+Step 1: Import data & initial analysis
+```{r data}
+LTdata1 <- read_csv("Lonely Together data 1.csv")
+glimpse(LTdata1)
+```
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+

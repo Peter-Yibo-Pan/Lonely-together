@@ -24,20 +24,41 @@ LTdata2 <- LTdata1 %>% select(contains("q00")) %>%
   glimpse()
 test <- is.na(LTdata2$q0001)
 Ineligible 
-
+LTdata3 <- LTdata2 %>% select( -"q0001", -"q0002", -"q0003", -"q0004")
 ## need to get list of column names & import into vector
-
+q_colnames <- c("age", "gender", "gender_other") ## needs to be full length
+varnames <- c(colnames(LTdata3)[1:3])
+renaming <- data_frame("variables" = varnames, 
+                       "names" = q_colnames )
+LTdata4 <- LTdata3 %>% rename_at(
+  vars(renaming$variables), ~ renaming$names)
 ## use vector to rename columns
 ```
 
 
-```{r scores, echo=FALSE}
+```{r cleaning, echo=FALSE}
+
+## separate into multiple datasets
 ## questions 1-4 is eligibility screening & consent
 
-## questions 5-12 is demographics
+## questions 5-12 is demographics (29 total columns)
+demographics <- LTdata4 %>% select(1:29)
 
-## questions 13, 14, and 15 are RHI
+## questions 7 gender identity and 12 racial identity needs to be condensed into single value
 
-## questions 16 is DJGLS
+## questions 13, 14, and 15 are RHI (37 total columns)
+RHI <- LTdata4 %>% select(30:66)
+## questions 16 is DJGLS (11 total columns)
+DJG <- LTdata4 %>% select(67:77)
+
+
+## detect for incomplete surveys & missing values & extreme values (age)
 ```
 
+
+```{r scores}
+
+
+
+
+```

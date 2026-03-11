@@ -6,21 +6,38 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(glue)
 library(knitr)
 theme_set(theme_minimal())
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Step 1: Import data & initial analysis
 ```{r data}
 LTdata1 <- read_csv("Lonely Together data 1.csv")
 glimpse(LTdata1)
+
+## need to select only relevant columns
+LTdata2 <- LTdata1 %>% select(contains("q00")) %>%
+  glimpse()
+test <- is.na(LTdata2$q0001)
+Ineligible 
+
+## need to get list of column names & import into vector
+
+## use vector to rename columns
 ```
 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r scores, echo=FALSE}
+## questions 1-4 is eligibility screening & consent
+
+## questions 5-12 is demographics
+
+## questions 13, 14, and 15 are RHI
+
+## questions 16 is DJGLS
 ```
 

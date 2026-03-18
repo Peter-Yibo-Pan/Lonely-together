@@ -66,7 +66,7 @@ LTData5 <- stiched_data
 write_csv(x = LTData5, "LTData5.csv")
 ## detect for incomplete surveys & missing values & extreme values (age)
 
-LTdata5 %>% filter()
+LTdata6 <- read_csv("LTData6.csv")
 ```
 
 
@@ -76,22 +76,94 @@ LTdata5 %>% filter()
 
 ## peer, mentor, and community subscale scores 
 #     RHI_Peer = mean(ALL COLUMNS WITH PEER) 
+Peer <- LTdata6 %>% select( , contains("Peer")) %>% 
+  mutate(PeerMean = rowMeans(across(where(is.numeric)))) %>% glimpse()
 #     RHI_Peer = mean(ALL COLUMNS WITH MENTOR) 
-#     RHI_Peer = mean(ALL COLUMNS WITH COMMUNITY) 
+Mentor <- LTdata6 %>% select( , contains("Mentor")) %>% 
+  mutate(MentorMean = rowMeans(across(where(is.numeric)))) %>% glimpse()
+#     RHI_Peer = mean(ALL COLUMNS WITH COMMUNITY) \
+Community <- LTdata6 %>% select( , contains("Community")) %>% 
+  mutate(CommunityMean = rowMeans(across(where(is.numeric)))) %>% glimpse()
 #     RHI_Sum = Sum(ALL RHI) 
+RHI <- LTdata6 %>% select ( ,starts_with("ID")| contains("Peer") | contains("Mentor") |contains("Community") ) %>% 
+  mutate(RHISum = rowSums(across(where(is.numeric) & !ID))) %>% 
+  mutate(RHIMean = rowMeans(across(where(is.numeric) & !ID))) %>% glimpse()
+RHI<- RHI %>%  
+  mutate(PeerMean = rowMeans(across(contains("Peer")))) %>% 
+  mutate(MentorMean = rowMeans(across(contains("Mentor")))) %>%
+  mutate(CommunityMean = rowMeans(across(contains("Community")))) %>% glimpse()
 
 ## engagement, zest, and authenticity subscale scores
 
 
 ```
+RHI Engagement, Authenticity, and Zest: 
+Empowerment/Zest subscales
+RHI-P items: 2, 7, 9, 10
+RHI-M items: 5, 7, 8, 10
+RHI-C items: 2, 6, 11, 12, 13
+Engagement subscales
+RHI-P items: 3, 4, 5, 12
+RHI-M items: 3, 6, 9
+RHI-C items: 1, 3, 5, 8, 14
+Authenticity subscales
+RHI-P items: 1, 6, 8, 11
+RHI-M items: 1, 2, 4, 11
+RHI-C items: 4, 7, 9, 10 
+```{r EZA Subscale Scores}
 
+
+RHI<- RHI %>% 
+  mutate(Zest = rowMeans(across(one_of("Peer_0002", "Peer_0007", "Peer_0009", "Peer_0010", 
+                                                        "Mentor_0005", "Mentor_0007", "Mentor_0008", "Mentor_0010", 
+                                                        "Community_0002",   "Community_0006",  "Community_0011",  "Community_0012",  
+                                                   "Community_0013") ) )) %>%
+  mutate(Engagement = rowMeans(across(one_of("Peer_0003", "Peer_0004", "Peer_0005", "Peer_0012", 
+                                                        "Mentor_0003", "Mentor_0006", "Mentor_0009", 
+                                                        "Community_0001",   "Community_0003",  "Community_0005",  "Community_0008",  
+                                                   "Community_0014") ) )) %>%
+  mutate(Authenticity = rowMeans(across(one_of("Peer_0001", "Peer_0006", "Peer_0008", "Peer_0011", 
+                                                        "Mentor_0001", "Mentor_0002", "Mentor_0004", "Mentor_0011", 
+                                                        "Community_0004",   "Community_0007",  "Community_0009",  "Community_0010") ) )) 
+
+
+```
 
 
 ```{r DJGLS scores}
 ## select for positive-coding questions
 ## change responses 3-5 to 1 and 1-2 to 0
+reverse_code <- function(x, na.rm = FALSE) (6 - x)
+LTdata7 <- LTdata6 %>% select( , starts_with("ID") | contains("Loneliness")) %>%
+  select( , ends_with("0001") | ends_with("0004") | ends_with("0007") | ends_with("0008") | ends_with("0011")) %>% 
+  transmute_all(reverse_code)  
 
+Loneliness <- tribble(
+  ~from, ~to,
+  1, 0,
+  2, 0,
+  3, 1,
+  4, 1,
+  5, 1
+)
 
-
+SocialScore <- LTdata7 %>% transmute_all( ~ recode_values (.x , from = Loneliness$from, to = Loneliness$to))%>% mutate(SocialScore = rowSums(across(where(is.numeric)))) %>% glimpse()
+LTdata9 <- LTdata6 %>% select( , contains("Loneliness")) %>%
+  select( , -(ends_with("0001") | ends_with("0004") | ends_with("0007") | ends_with("0008") | ends_with("0011"))) %>% 
+  transmute_all( ~ recode_values (.x , from = Loneliness$from, to = Loneliness$to))
+EmotionalScore <- LTdata9 %>% mutate(EmotionalScore = rowSums(across(where(is.numeric)))) %>% glimpse()
+DJGLS <- bind_cols(SocialScore, EmotionalScore)
+DJGLS <- DJGLS %>% 
+    mutate(Loneliness = rowSums(across(contains("Score"))))
 
 ```
+
+```{r generate final sheet}
+LTdata10 <- bind_cols(RHI, DJGLS) %>% select(!starts_with("ID"))
+LTdata11 <- LTdata10 %>% select(!contains("00"))
+
+write_csv(x = LTdata10, "LTData10.csv")
+write_csv(x = LTdata11, "LTData11.csv")
+
+```
+}

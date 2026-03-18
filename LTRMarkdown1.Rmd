@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Step 1: Import data & initial analysis
 ```{r data}
 LTdata1 <- read_csv("Lonely Together data 1.csv")
+demographics <- read_csv("Demographics.csv")
 glimpse(LTdata1)
 
 ## need to select only relevant columns
@@ -50,13 +51,45 @@ demographics <- LTdata4 %>% select(1:29)
 RHI <- LTdata4 %>% select(30:66)
 ## questions 16 is DJGLS (11 total columns)
 DJG <- LTdata4 %>% select(67:77)
+demographics <- demographics %>% rename(ID = "Respondent ID")
+no_demo <- LTdata1 %>% select(2, 44:91) %>% rename(ID= "RespondentID")
 
+stiched_data <- demographics %>% left_join(no_demo, by = "ID")
+#renaming 
 
+library(stringr)
+colnames(stiched_data) = gsub("q0013", "Peer", colnames(stiched_data))
+colnames(stiched_data) = gsub("q0014", "Mentor", colnames(stiched_data))
+colnames(stiched_data) = gsub("q0015", "Community", colnames(stiched_data))
+colnames(stiched_data) = gsub("q0016", "Loneliness", colnames(stiched_data))
+LTData5 <- stiched_data
+write_csv(x = LTData5, "LTData5.csv")
 ## detect for incomplete surveys & missing values & extreme values (age)
+
+LTdata5 %>% filter()
 ```
 
 
-```{r scores}
+```{r RHI scores}
+## reverse code questions Peer 8, Community 4, 7, 9, 10 
+
+
+## peer, mentor, and community subscale scores 
+#     RHI_Peer = mean(ALL COLUMNS WITH PEER) 
+#     RHI_Peer = mean(ALL COLUMNS WITH MENTOR) 
+#     RHI_Peer = mean(ALL COLUMNS WITH COMMUNITY) 
+#     RHI_Sum = Sum(ALL RHI) 
+
+## engagement, zest, and authenticity subscale scores
+
+
+```
+
+
+
+```{r DJGLS scores}
+## select for positive-coding questions
+## change responses 3-5 to 1 and 1-2 to 0
 
 
 

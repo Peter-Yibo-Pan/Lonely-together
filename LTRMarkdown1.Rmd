@@ -158,8 +158,9 @@ DJGLS <- DJGLS %>%
 
 ```
 
-```{r generate total sheet}
-LTdata10 <- bind_cols(RHI, DJGLS) %>% select(!starts_with("ID"))
+```{r add demographics, generate total sheet}
+demographics <- LTdata6 %>% select(!contains("00"))
+LTdata10 <- bind_cols(demographics, RHI, DJGLS) %>% select(!starts_with("ID"))
 LTdata11 <- LTdata10 %>% select(!contains("00"))
 
 write_csv(x = LTdata10, "LTData10.csv")
@@ -169,11 +170,11 @@ write_csv(x = LTdata11, "LTData11.csv")
 
 ```{r creating sheets with na and sheets with only complete results}
 # LTdata 12 and 13 are only complete cases, data + scores vs. only scores
-LTdata12 <- LTdata10[complete.cases(LTdata10),]
+LTdata12 <- LTdata10[rowSums(is.na(LTdata10[ ,29:86])) == 0, ]
 LTdata13 <- LTdata12 %>% select(!contains("00"))
 
 # LTdata 14 and 15 are only incomplete cases, data + scores vs. only scores
-LTdata14 <- LTdata10[rowSums(is.na(LTdata10[ ,])) != 0, ]
+LTdata14 <- LTdata10[rowSums(is.na(LTdata10[ ,29:86])) != 0, ]
 LTdata15 <- LTdata14 %>% select(!contains("00"))
 write_csv(x = LTdata12, "LTData12.csv")
 write_csv(x = LTdata13, "LTData13.csv")

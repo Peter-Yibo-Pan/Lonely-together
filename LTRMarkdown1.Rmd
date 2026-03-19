@@ -10,6 +10,7 @@ output: html_document
 library(tidyverse)
 library(glue)
 library(knitr)
+library(patchwork)
 theme_set(theme_minimal())
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -190,11 +191,16 @@ LTdata11 %>% ggplot( , mapping = aes(
   x = RHISum
 )) + geom_histogram() 
 
+LTdata11 %>% ggplot( , mapping = aes(
+  x = Loneliness
+)) + geom_histogram() 
+
 LTdata11 %>% ggplot(, mapping = aes(
   x = RHIMean, 
   y = Loneliness, 
   colour = What.is.your.gender.identity
-)) + geom_point()
+)) + geom_point() 
+ggsave("LRHI.jpg")
 
 LTdata11 %>% ggplot(, mapping = aes(
   x = What.is.your.age, 
@@ -207,6 +213,42 @@ LTdata11 %>% ggplot(, mapping = aes(
   colour = Which.of.the.following.best.describes.your.current.relationship.status.
 )) + geom_point() + theme(legend.position = "bottom")
 
-LTdata11 %>% 
+# graph three plots together
+PeerLoneliness <-  ggplot(LTdata11, mapping = aes(
+  x = PeerMean, 
+  y = Loneliness)) + geom_point()
+MentorLoneliness <- ggplot(LTdata11, mapping = aes(
+  x = MentorMean, 
+  y = Loneliness)) + geom_point()
+CommunityLoneliness <- ggplot(LTdata11, mapping = aes(
+  x = CommunityMean, 
+  y = Loneliness
+)) + geom_point()
 
+figure1 <- ggarrange(PeerLoneliness, MentorLongliness, CommunityLoneliness,
+                    labels = c("A", "B", "C"),
+                    ncol = 3, nrow = 1)
+wrap_plots(PeerLoneliness, MentorLoneliness, CommunityLoneliness)
+wrap_plots(PeerLoneliness, MentorLoneliness, CommunityLoneliness, 
+           ncol = 1, nrow = 3)
+
+# graph social and emotional scores vs. RHI scores
+RHISocEmo <- LTdata11 %>% select(RHISum, SocialScore, EmotionalScore) %>%
+  pivot_longer(!RHISum, names_to = "subscale", values_to = "score") 
+RHISocEmo %>% group_by(subscale) %>%
+ggplot(, mapping = aes(
+  x = RHISum, 
+  y = score 
+  )) + geom_point() + facet_wrap(vars(subscale))
+
+
+#graph RHI subscales vs. Loneliness
+LonelinessPMC <- LTdata11 %>% select(PeerMean, MentorMean, CommunityMean, Loneliness) %>%
+  pivot_longer(!Loneliness, names_to = "subscale", values_to = "score")
+LPMC <- LonelinessPMC %>% group_by(subscale) %>% 
+  ggplot(, mapping = aes(
+    x = score, 
+    y = Loneliness, colour = subscale
+  )) + geom_point() + facet_wrap(vars(subscale))+theme(legend.position = "none")
+ggsave("LPMC.jpg")
 ```

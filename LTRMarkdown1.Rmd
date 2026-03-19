@@ -182,3 +182,31 @@ write_csv(x = LTdata14, "LTData14.csv")
 write_csv(x = LTdata15, "LTData15.csv")
 
 ```
+```{r Playing around with distributions}
+# read data
+LTdata11 <- read.csv("LTData11(AllCases OnlyScores).csv")
+# graph distributions of RHI sums & Peer Mentor Community means
+LTdata11 %>% ggplot( , mapping = aes(
+  x = RHISum
+)) + geom_histogram() 
+
+LTdata11 %>% ggplot(, mapping = aes(
+  x = RHIMean, 
+  y = Loneliness, 
+  colour = What.is.your.gender.identity
+)) + geom_point()
+
+LTdata11 %>% ggplot(, mapping = aes(
+  x = What.is.your.age, 
+  y = RHISum, 
+)) + geom_point()
+
+LTdata11 %>% ggplot(, mapping = aes(
+  x = What.is.your.age, 
+  y = Loneliness,
+  colour = Which.of.the.following.best.describes.your.current.relationship.status.
+)) + geom_point() + theme(legend.position = "bottom")
+
+LTdata11 %>% 
+
+```

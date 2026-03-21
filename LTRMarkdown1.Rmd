@@ -182,45 +182,81 @@ write_csv(x = LTdata13, "LTData13.csv")
 write_csv(x = LTdata14, "LTData14.csv")
 write_csv(x = LTdata15, "LTData15.csv")
 
+
+
 ```
-```{r Playing around with distributions}
+
+ANALYSIS
+```{r missing values}
+
 # read data
 LTdata11 <- read.csv("LTData11(AllCases OnlyScores).csv")
+
+
+
+#calculate missing values for each column
+LTdata11 %>% select(one_of("RHISum", "RHIMean", "Loneliness", "SocialScore", "EmotionalScore", 
+                           "PeerMean", "MentorMean", "CommunityMean")) %>% 
+  summarise_all(~ sum(is.na(.)))
+LTdata11 %>% select(one_of( "Age", "Gender", "RelationshipStatus")) %>% 
+  summarise_all(~ sum(is.na(.)))
+
+# output only complete responses
+LTdata12 <- LTdata11[rowSums(is.na(LTdata11[ ,28:38])) == 0, ]
+write_csv(x = LTdata12, "LTData12.csv")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+VISUALIZATION
+
+```{r Playing around with distributions}
+
 # graph distributions of RHI sums & Peer Mentor Community means
-LTdata11 %>% ggplot( , mapping = aes(
+LTdata12 %>% ggplot( , mapping = aes(
   x = RHISum
 )) + geom_histogram() 
 
-LTdata11 %>% ggplot( , mapping = aes(
+LTdata12 %>% ggplot( , mapping = aes(
   x = Loneliness
 )) + geom_histogram() 
 
-LTdata11 %>% ggplot(, mapping = aes(
+LTdata12 %>% ggplot(, mapping = aes(
   x = RHIMean, 
-  y = Loneliness, 
-  colour = What.is.your.gender.identity
-)) + geom_point() 
+  y = Loneliness
+)) + geom_jitter(aes(color = Gender))
 ggsave("LRHI.jpg")
 
-LTdata11 %>% ggplot(, mapping = aes(
+LTdata12 %>% ggplot(, mapping = aes(
   x = What.is.your.age, 
   y = RHISum, 
 )) + geom_point()
 
-LTdata11 %>% ggplot(, mapping = aes(
+LTdata12 %>% ggplot(, mapping = aes(
   x = What.is.your.age, 
   y = Loneliness,
   colour = Which.of.the.following.best.describes.your.current.relationship.status.
 )) + geom_point() + theme(legend.position = "bottom")
 
 # graph three plots together
-PeerLoneliness <-  ggplot(LTdata11, mapping = aes(
+PeerLoneliness <-  ggplot(LTdata12, mapping = aes(
   x = PeerMean, 
   y = Loneliness)) + geom_point()
-MentorLoneliness <- ggplot(LTdata11, mapping = aes(
+MentorLoneliness <- ggplot(LTdata12, mapping = aes(
   x = MentorMean, 
   y = Loneliness)) + geom_point()
-CommunityLoneliness <- ggplot(LTdata11, mapping = aes(
+CommunityLoneliness <- ggplot(LTdata12, mapping = aes(
   x = CommunityMean, 
   y = Loneliness
 )) + geom_point()
@@ -233,22 +269,24 @@ wrap_plots(PeerLoneliness, MentorLoneliness, CommunityLoneliness,
            ncol = 1, nrow = 3)
 
 # graph social and emotional scores vs. RHI scores
-RHISocEmo <- LTdata11 %>% select(RHISum, SocialScore, EmotionalScore) %>%
+RHISocEmo <- LTdata12 %>% select(RHISum, SocialScore, EmotionalScore) %>%
   pivot_longer(!RHISum, names_to = "subscale", values_to = "score") 
 RHISocEmo %>% group_by(subscale) %>%
 ggplot(, mapping = aes(
   x = RHISum, 
-  y = score 
-  )) + geom_point() + facet_wrap(vars(subscale))
+  y = score, colour = subscale
+  )) + geom_jitter() + facet_wrap(vars(subscale))+theme(legend.position = "none")
 
 
 #graph RHI subscales vs. Loneliness
-LonelinessPMC <- LTdata11 %>% select(PeerMean, MentorMean, CommunityMean, Loneliness) %>%
+LonelinessPMC <- LTdata12 %>% select(PeerMean, MentorMean, CommunityMean, Loneliness) %>%
   pivot_longer(!Loneliness, names_to = "subscale", values_to = "score")
-LPMC <- LonelinessPMC %>% group_by(subscale) %>% 
+LPMC <- 
+  LonelinessPMC %>% group_by(subscale) %>% 
   ggplot(, mapping = aes(
     x = score, 
     y = Loneliness, colour = subscale
-  )) + geom_point() + facet_wrap(vars(subscale))+theme(legend.position = "none")
+  )) + geom_jitter() + facet_wrap(vars(subscale))+theme(legend.position = "none")
 ggsave("LPMC.jpg")
 ```
+
